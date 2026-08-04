@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import multer from "multer";
 import { AppError } from "../utils/AppError.js";
 
 export const notFoundHandler = (req, _res, next) => {
@@ -17,6 +18,15 @@ export const errorHandler = (error, _req, res, _next) => {
   if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
     statusCode = 409;
     message = "A user with this email already exists.";
+  }
+
+  if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
+    statusCode = 400;
+    message = "Document file must be 25MB or smaller.";
+  }
+
+  if (message === "Origin is not allowed by CORS.") {
+    statusCode = 403;
   }
 
   res.status(statusCode).json({

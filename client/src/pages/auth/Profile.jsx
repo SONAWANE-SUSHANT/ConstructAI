@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import PageShell from "../../components/PageShell";
 import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../hooks/useToast";
 
 export default function Profile() {
   const { user, updateProfile, logout } = useAuth();
+  const { notify } = useToast();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: user?.name || "",
@@ -46,8 +49,11 @@ export default function Profile() {
     try {
       await updateProfile({ name: form.name.trim(), email: form.email.trim() });
       setMessage("Profile updated successfully.");
+      notify("Profile updated successfully.", "success");
     } catch (error) {
-      setApiError(error.response?.data?.message || "Unable to update profile.");
+      const message = error.userMessage || "Unable to update profile.";
+      setApiError(message);
+      notify(message, "error");
     } finally {
       setSaving(false);
     }
@@ -60,32 +66,21 @@ export default function Profile() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8">
+    <PageShell
+      eyebrow="Account"
+      title="Profile settings"
+      action={
+        <>
+          <Link className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-white dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900" to="/dashboard">Dashboard</Link>
+          <button className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-500" type="button" onClick={handleLogout} disabled={loggingOut}>
+            {loggingOut ? "Signing out..." : "Sign out"}
+          </button>
+        </>
+      }
+    >
       <section className="mx-auto w-full max-w-3xl">
-        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-cyan-700">Account</p>
-            <h1 className="mt-1 text-3xl font-bold text-slate-950">Profile settings</h1>
-          </div>
-          <div className="flex gap-3">
-            <Link
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-white"
-              to="/dashboard"
-            >
-              Dashboard
-            </Link>
-            <button
-              className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-500"
-              type="button"
-              onClick={handleLogout}
-              disabled={loggingOut}
-            >
-              {loggingOut ? "Signing out..." : "Sign out"}
-            </button>
-          </div>
-        </div>
 
-        <form className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-slate-200" onSubmit={handleSubmit} noValidate>
+        <form className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800" onSubmit={handleSubmit} noValidate>
           {message ? (
             <div className="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
               {message}
@@ -135,6 +130,6 @@ export default function Profile() {
           </div>
         </form>
       </section>
-    </main>
+    </PageShell>
   );
 }

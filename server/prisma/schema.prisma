@@ -31,6 +31,10 @@ model Project {
   budget      Decimal?      @db.Decimal(12, 2)
   ownerId     String
   owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  documents   Document[]
+  materials   Material[]
+  workers     Worker[]
+  equipment   Equipment[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -39,10 +43,101 @@ model Project {
   @@map("projects")
 }
 
+model Document {
+  id           String       @id @default(uuid())
+  title        String
+  type         DocumentType
+  originalName String
+  fileName     String
+  mimeType     String
+  size         Int
+  path         String
+  projectId    String
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([projectId])
+  @@index([type])
+  @@map("documents")
+}
+
+model Material {
+  id        String         @id @default(uuid())
+  name      String
+  category  String?
+  unit      String
+  quantity  Decimal        @default(0) @db.Decimal(12, 2)
+  unitCost  Decimal?       @db.Decimal(12, 2)
+  status    ResourceStatus @default(AVAILABLE)
+  supplier  String?
+  notes     String?
+  projectId String
+  project   Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+  @@map("materials")
+}
+
+model Worker {
+  id        String         @id @default(uuid())
+  name      String
+  role      String
+  phone     String?
+  dailyRate Decimal?       @db.Decimal(12, 2)
+  status    ResourceStatus @default(AVAILABLE)
+  notes     String?
+  projectId String
+  project   Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+  @@map("workers")
+}
+
+model Equipment {
+  id        String         @id @default(uuid())
+  name      String
+  type      String
+  identifier String?
+  dailyRate Decimal?       @db.Decimal(12, 2)
+  status    ResourceStatus @default(AVAILABLE)
+  notes     String?
+  projectId String
+  project   Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+  @@map("equipment")
+}
+
 enum ProjectStatus {
   PLANNING
   ACTIVE
   ON_HOLD
   COMPLETED
   CANCELLED
+}
+
+enum DocumentType {
+  BOQ
+  BLUEPRINT
+  CONTRACT
+  MATERIAL_PRICE_LIST
+  SUPPLIER_QUOTATION
+}
+
+enum ResourceStatus {
+  AVAILABLE
+  ASSIGNED
+  IN_USE
+  MAINTENANCE
+  UNAVAILABLE
 }

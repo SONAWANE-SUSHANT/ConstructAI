@@ -32,6 +32,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    const handleExpiredSession = () => clearSession();
+    window.addEventListener("auth:expired", handleExpiredSession);
+    return () => window.removeEventListener("auth:expired", handleExpiredSession);
+  }, [clearSession]);
+
+  useEffect(() => {
     const hydrateProfile = async () => {
       if (!token) {
         setInitializing(false);
