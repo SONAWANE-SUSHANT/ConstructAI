@@ -22,6 +22,7 @@ export default function AppRoutes() {
                     <Route path="/projects" element={<Projects />} />
                     <Route path="/projects/new" element={<CreateProject />} />
                     <Route path="/projects/:id" element={<ProjectDetails />} />
+                    <Route path="/projects/:id/edit" element={<CreateProject />} />
                     <Route path="/reports" element={<Reports />} />
                 </Route>
             </Routes>

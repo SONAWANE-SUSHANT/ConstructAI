@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import "./config/env.js";
 import authRoutes from "./routes/auth.routes.js";
+import projectRoutes from "./routes/project.routes.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -24,6 +25,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/projects", projectRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
